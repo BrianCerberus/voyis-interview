@@ -8,6 +8,9 @@
 
 A distributed image processing system written in modern C++ that generates, processes, and stores image data. The system consists of three loosely-coupled applications communicating via ZeroMQ for inter-process communication.
 
+**⚡ Quick Start:** See [QUICKSTART.md](QUICKSTART.md) for a 2-minute overview  
+**📦 Download Dataset:** [OneDrive Link](https://1drv.ms/f/c/036a5c315af71232/IgDRG0rJhCPxTaiOjrjCU9D_AUQsKgDDI2tqaZl3Ao6ivQY) (3.5GB, 2,481 images)
+
 ## Table of Contents
 
 - [Overview](#overview)
@@ -15,8 +18,10 @@ A distributed image processing system written in modern C++ that generates, proc
 - [Requirements](#requirements)
 - [Building the Project](#building-the-project)
 - [Running the Applications](#running-the-applications)
+- [Testing and Validation](#testing-and-validation)
 - [Application Details](#application-details)
 - [Design Decisions](#design-decisions)
+- [Project Structure](#project-structure)
 - [Troubleshooting](#troubleshooting)
 
 ## Overview
@@ -527,6 +532,68 @@ VACUUM;
 
 ## Testing and Validation
 
+### Unit Tests
+
+The project includes comprehensive unit tests integrated with the build system:
+
+```bash
+# Tests run automatically during build
+./build.sh
+
+# Or run tests manually
+cd build
+ctest --verbose
+```
+
+**Test Coverage:**
+- **Message Protocol Tests** (4 tests):
+  - Image data serialization/deserialization
+  - Processed data serialization/deserialization
+  - Message type detection
+  - Heartbeat messages
+
+- **Database Tests** (3 tests):
+  - Database initialization and schema
+  - Store and retrieve operations
+  - Multiple inserts with integrity checks
+
+**Results:** 7/7 tests passing
+
+### Resilience Testing
+
+Comprehensive failure scenario testing:
+
+```bash
+./test_resilience.sh
+```
+
+This script tests all possible failure combinations:
+1. **Single app failures** (3 tests): Generator only, Extractor only, Logger only
+2. **Dual app failures** (3 tests): 1+2, 1+3, 2+3
+3. **Complete shutdown** (1 test): All apps restart from cold start
+4. **Runtime crash** (1 test): Mid-operation failure and recovery
+
+**Key Findings:**
+- ZeroMQ provides automatic reconnection (acts as passive watchdog)
+- Message loss occurs when publisher has no subscribers
+- System recovers gracefully from any failure combination
+- No cascading failures between components
+
+### Interactive Demo
+
+Run the interactive demonstration:
+
+```bash
+./demo.sh
+```
+
+Features:
+- Step-by-step walkthrough with pauses
+- Library rationale and technology explanations
+- Database schema visualization
+- Live resilience testing
+- Performance metrics
+
 ### Verify System is Working
 
 1. **Check logs**:
@@ -539,6 +606,7 @@ tail -f logs/data_logger.log
 2. **Query database**:
 ```bash
 sqlite3 imaging_data.db "SELECT COUNT(*) FROM images;"
+sqlite3 imaging_data.db "SELECT COUNT(*) FROM keypoints;"
 ```
 
 3. **Monitor system resources**:
@@ -553,17 +621,23 @@ On a typical modern system:
 - **Feature Extractor**: 2-5 frames/second (depending on image complexity)
 - **Data Logger**: 5-10 frames/second
 - **SIFT extraction**: 100-500ms per frame
+- **Typical keypoints per image**: 500-3000
 
 ## Project Structure
 
 ```
 .
-├── CMakeLists.txt              # Build configuration
-├── README.md                   # This file
-├── DESIGN.md                   # Detailed design document
-├── build.sh                    # Build script
+├── CMakeLists.txt              # Build configuration with CTest
+├── README.md                   # This file (comprehensive documentation)
+├── QUICKSTART.md               # Quick reference guide
+├── .gitignore                  # Git ignore rules (excludes images)
+├── build.sh                    # Build script with automated testing
 ├── run_all.sh                  # Run all apps script
 ├── stop_all.sh                 # Stop all apps script
+├── demo.sh                     # Interactive demonstration script
+├── test_resilience.sh          # Comprehensive resilience testing
+├── download_images.sh          # Download image dataset from OneDrive
+├── install_dependencies.sh     # Dependency installation script
 ├── include/                    # Header files
 │   ├── message_protocol.h      # IPC message definitions
 │   ├── logger.h                # Logging utility
@@ -583,11 +657,31 @@ On a typical modern system:
 │   └── data_logger/            # App 3
 │       ├── main.cpp
 │       └── database_manager.cpp
-├── deep_sea_imaging/           # Test data
-│   └── raw/                    # Image files
+├── tests/                      # Unit tests
+│   ├── test_message_protocol.cpp  # IPC serialization tests
+│   └── test_database.cpp          # Database operation tests
+├── deep_sea_imaging/           # Image dataset (not in repo)
+│   └── raw/                    # 2,481 PNG files (~3.5GB)
 ├── build/                      # Build output (created by build.sh)
+│   ├── image_generator
+│   ├── feature_extractor
+│   ├── data_logger
+│   ├── test_message_protocol
+│   └── test_database
 └── logs/                       # Log files (created at runtime)
 ```
+
+## Scripts Reference
+
+| Script | Purpose |
+|--------|---------|
+| `build.sh` | Build project + run unit tests |
+| `run_all.sh` | Start all 3 applications |
+| `stop_all.sh` | Stop all running applications |
+| `demo.sh` | Interactive demonstration with pauses |
+| `test_resilience.sh` | Test all failure scenarios (8 tests) |
+| `download_images.sh` | Download dataset from OneDrive |
+| `install_dependencies.sh` | Install required packages |
 
 ## License
 
