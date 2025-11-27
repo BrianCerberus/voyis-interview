@@ -1,0 +1,59 @@
+# Build directories
+build/
+cmake-build-*/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+install_manifest.txt
+
+# Binaries
+bin/
+*.out
+*.exe
+*.app
+image_generator
+feature_extractor
+data_logger
+
+# IDE specific
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.clangd/
+.cache/
+
+# Database files
+*.db
+*.sqlite
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Log files
+logs/
+*.log
+
+# Generated files
+compile_commands.json
+
+# Test/temporary files
+test_output/
+temp/
+
+# Image datasets (too large for GitHub)
+deep_sea_imaging/
+*.png
+*.jpg
+*.jpeg
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Backup files
+*~
+*.bak
+*.orig
