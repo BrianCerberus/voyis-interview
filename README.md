@@ -72,7 +72,21 @@ This project demonstrates a robust, modular distributed system with the followin
 - **Compiler**: GCC 7.0+ or Clang 6.0+ (C++17 support required)
 - **CMake**: Version 3.15 or higher
 - **Memory**: At least 2GB RAM recommended
-- **Disk**: 1GB for build artifacts and database
+- **Disk**: 5GB (3.5GB for image dataset + 1GB for build artifacts and database)
+
+### Image Dataset
+
+The project requires a dataset of 2,481 underwater images (~3.5GB). The images are hosted on OneDrive and not included in this repository due to size constraints.
+
+**Download the dataset:**
+
+```bash
+./download_images.sh
+```
+
+Or manually download from: [OneDrive Link](https://1drv.ms/f/c/036a5c315af71232/IgDRG0rJhCPxTaiOjrjCU9D_AUQsKgDDI2tqaZl3Ao6ivQY)
+
+The images should be placed in: `deep_sea_imaging/raw/*.png`
 
 ### Dependencies
 
